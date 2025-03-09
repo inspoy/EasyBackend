@@ -18,7 +18,12 @@ public class Bootstrap
             return null;
         }
 
-        var appConfig = new AppConfig();
+        var appConfig = AppConfig.ReadFromFile(confPath);
+        if (appConfig == null)
+        {
+            return null;
+        }
+
         var logger = new Logger();
         logger.Init(appConfig.Logging);
         logger.Info(launchArgs.Dump());
@@ -35,4 +40,15 @@ public class Bootstrap
     internal LaunchArgs LaunchArgs { get; private set; }
     public Logger Logger { get; private set; }
     public AppConfig AppConfig { get; private set; }
+
+    public void Start()
+    {
+        Logger.Info("Starting...", "Bootstrap");
+        Logger.Info("Started", "Bootstrap");
+    }
+
+    public void Shutdown()
+    {
+        Logger.Info("Shutting down...", "Bootstrap");
+    }
 }

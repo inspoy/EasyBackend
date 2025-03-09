@@ -12,4 +12,10 @@
       <ProjectReference Include="..\EasyBackend\EasyBackend.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="appConf.yml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

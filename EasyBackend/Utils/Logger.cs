@@ -33,7 +33,7 @@ public class Logger
             AppendHandler("file", fileHandler);
         }
 
-        LogImpl(LogLevel.Info, "===== Logger initialized =====");
+        LogImpl(LogLevel.Info, "===== Logger initialized =====", "Logger");
     }
 
     public void AppendHandler(string name, ILogHandler handler)
@@ -41,14 +41,19 @@ public class Logger
         _logHandlers.Add(name, handler);
     }
 
-    public void Debug(string message) => LogImpl(LogLevel.Debug, message);
-    public void Info(string message) => LogImpl(LogLevel.Info, message);
-    public void Warn(string message) => LogImpl(LogLevel.Warn, message);
-    public void Error(string message) => LogImpl(LogLevel.Error, message);
-    public void Fatal(string message) => LogImpl(LogLevel.Fatal, message);
+    public void Debug(string message, string module = null) => LogImpl(LogLevel.Debug, message, module);
+    public void Info(string message, string module = null) => LogImpl(LogLevel.Info, message, module);
+    public void Warn(string message, string module = null) => LogImpl(LogLevel.Warn, message, module);
+    public void Error(string message, string module = null) => LogImpl(LogLevel.Error, message, module);
+    public void Fatal(string message, string module = null) => LogImpl(LogLevel.Fatal, message, module);
 
-    private void LogImpl(LogLevel level, string message)
+    private void LogImpl(LogLevel level, string message, string module)
     {
+        if (!string.IsNullOrEmpty(module))
+        {
+            message = $"[{module}]" + message;
+        }
+
         foreach (var handler in _logHandlers.Values)
         {
             handler?.DoLog(level, message);
