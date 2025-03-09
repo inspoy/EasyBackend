@@ -20,7 +20,7 @@ public class Bootstrap
 
         var appConfig = new AppConfig();
         var logger = new Logger();
-        logger.Init(appConfig);
+        logger.Init(appConfig.Logging);
         logger.Info(launchArgs.Dump());
 
         var bootstrap = new Bootstrap

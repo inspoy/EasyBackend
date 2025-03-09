@@ -35,9 +35,7 @@ public class AppConfig
 
 public class AppConfigLogging
 {
-    public bool EnableConsole;
-    public string ConsoleLevel;
+    public bool ConsoleEnabled;
+    public bool ConsoleColor;
     public string LogFileFolder;
-    public string FileLevel;
-    public string Rotate;
 }

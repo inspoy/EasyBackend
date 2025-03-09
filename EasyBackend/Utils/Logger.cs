@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace EasyBackend.Utils;
 
 public enum LogLevel
@@ -13,8 +15,30 @@ public class Logger
 {
     private Dictionary<string, ILogHandler> _logHandlers = new();
 
-    internal void Init(AppConfig config)
+    internal void Init(AppConfigLogging config)
     {
+        if (config.ConsoleEnabled)
+        {
+            var consoleHandler = new ConsoleLogHandler
+            {
+                EnableColor = config.ConsoleColor
+            };
+            AppendHandler("console", consoleHandler);
+        }
+
+        if (!string.IsNullOrEmpty(config.LogFileFolder) &&
+            Directory.Exists(config.LogFileFolder))
+        {
+            var fileHandler = new FileLogHandler(config.LogFileFolder);
+            AppendHandler("file", fileHandler);
+        }
+
+        LogImpl(LogLevel.Info, "===== Logger initialized =====");
+    }
+
+    public void AppendHandler(string name, ILogHandler handler)
+    {
+        _logHandlers.Add(name, handler);
     }
 
     public void Debug(string message) => LogImpl(LogLevel.Debug, message);
@@ -32,7 +56,74 @@ public class Logger
     }
 }
 
-interface ILogHandler
+public interface ILogHandler
 {
     void DoLog(LogLevel level, string message);
+}
+
+internal class ConsoleLogHandler : ILogHandler
+{
+    public bool EnableColor { get; set; }
+    private const string Format = "{0:yyyy-MM-dd HH:mm:ss.fff} [{1}] {2}";
+
+    public void DoLog(LogLevel level, string message)
+    {
+        if (EnableColor)
+        {
+            var color = level switch
+            {
+                LogLevel.Debug => ConsoleColor.DarkGray,
+                LogLevel.Info => ConsoleColor.Blue,
+                LogLevel.Warn => ConsoleColor.Yellow,
+                LogLevel.Error => ConsoleColor.Red,
+                LogLevel.Fatal => ConsoleColor.DarkRed,
+                _ => ConsoleColor.White
+            };
+            Console.ForegroundColor = color;
+        }
+
+        try
+        {
+            var finalMessage = string.Format(Format, DateTime.Now, level.ToString().ToUpper(), message);
+            Console.WriteLine(finalMessage);
+        }
+        finally
+        {
+            if (EnableColor)
+            {
+                Console.ResetColor();
+            }
+        }
+    }
+}
+
+internal class FileLogHandler(string logFolder) : ILogHandler
+{
+    private const string Format = "{0:yyyy-MM-dd HH:mm:ss.fff} [{1}] {2}";
+    private const string LogFileName = "log_{0:yyyyMMdd}.log";
+    private const string ErrorFileName = "error_{0:yyyyMMdd}.log";
+    private static readonly object Lock = new();
+
+    public void DoLog(LogLevel level, string message)
+    {
+        lock (Lock)
+        {
+            var logFile = Path.Combine(logFolder, string.Format(LogFileName, DateTime.Now));
+            var finalMessage = string.Format(Format, DateTime.Now, level.ToString().ToUpper(), message);
+            try
+            {
+                using var sw = new StreamWriter(logFile, true, Encoding.UTF8);
+                sw.WriteLine(finalMessage);
+
+                if (level < LogLevel.Error) return;
+                var errorFile = Path.Combine(logFolder, string.Format(ErrorFileName, DateTime.Now));
+                using var swErr = new StreamWriter(errorFile, true, Encoding.UTF8);
+                swErr.WriteLine(finalMessage);
+            }
+            catch (Exception e)
+            {
+                // ignore
+            }
+        }
+    }
 }

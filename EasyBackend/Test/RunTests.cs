@@ -7,6 +7,7 @@ public static class RunTests
     public static void Run()
     {
         TestLaunchArgs();
+        TestLogging();
     }
 
     private static void TestLaunchArgs()
@@ -25,5 +26,27 @@ public static class RunTests
         Console.WriteLine(confPath);
         Console.WriteLine(launchArgs.Dump());
         Console.WriteLine(launchArgs.HelpString());
+    }
+
+    private static void TestLogging()
+    {
+        if (!Directory.Exists("./logs"))
+        {
+            Directory.CreateDirectory("./logs");
+        }
+
+        var logger = new Logger();
+        logger.Init(new AppConfigLogging
+        {
+            ConsoleEnabled = true,
+            ConsoleColor = true,
+            LogFileFolder = "./logs"
+        });
+
+        logger.Debug("Test Debug Message");
+        logger.Info("Test Info Message");
+        logger.Warn("Test Warn Message");
+        logger.Error("Test Error Message");
+        logger.Fatal("Test Fatal Message");
     }
 }
