@@ -9,9 +9,9 @@ public class Bootstrap
         var launchArgs = new LaunchArgs(args);
         var argBook = new List<LaunchArgItem>
         {
-            new LaunchArgItem("config", 'c', "Path to config file"),
-            new LaunchArgItem("port", 'p', "Port to listen"),
-            new LaunchArgItem("debug", "Run in debug mode")
+            new("config", 'c', "Path to config file"),
+            new("port", 'p', "Port to listen"),
+            new("debug", "Run in debug mode")
         };
         launchArgs.Check(argBook);
         var confPath = launchArgs.Get("config");
