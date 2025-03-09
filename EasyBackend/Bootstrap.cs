@@ -9,9 +9,7 @@ public class Bootstrap
         var launchArgs = new LaunchArgs(args);
         var argBook = new List<LaunchArgItem>
         {
-            new("config", 'c', "Path to config file"),
-            new("port", 'p', "Port to listen"),
-            new("debug", "Run in debug mode")
+            new("config", 'c', "Path to config file")
         };
         launchArgs.Check(argBook);
         var confPath = launchArgs.Get("config");
@@ -34,7 +32,7 @@ public class Bootstrap
         return bootstrap;
     }
 
-    public Logger Logger { get; private set; }
     internal LaunchArgs LaunchArgs { get; private set; }
-    internal AppConfig AppConfig { get; private set; }
+    public Logger Logger { get; private set; }
+    public AppConfig AppConfig { get; private set; }
 }
