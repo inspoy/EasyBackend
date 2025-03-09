@@ -7,10 +7,13 @@ public class Bootstrap
     public static Bootstrap Create(string[] args)
     {
         var launchArgs = new LaunchArgs(args);
-        launchArgs.Check(new Dictionary<char, string>
+        var argBook = new List<LaunchArgItem>
         {
-            { 'c', "config" }
-        });
+            new LaunchArgItem("config", 'c', "Path to config file"),
+            new LaunchArgItem("port", 'p', "Port to listen"),
+            new LaunchArgItem("debug", "Run in debug mode")
+        };
+        launchArgs.Check(argBook);
         var confPath = launchArgs.Get("config");
         if (confPath == null)
         {

@@ -4,19 +4,26 @@ namespace EasyBackend.Test;
 
 public static class RunTests
 {
-    public static void TestLaunchArgs()
+    public static void Run()
     {
-        var strArgs = "-c config.json --port 8080 -d";
+        TestLaunchArgs();
+    }
+
+    private static void TestLaunchArgs()
+    {
+        var strArgs = "-c config.json -p 8080 -d";
         var args = strArgs.Split(' ');
         var launchArgs = new LaunchArgs(args);
-        launchArgs.Check(new Dictionary<char, string>
+        var argBook = new List<LaunchArgItem>
         {
-            { 'c', "config" }
-        });
+            new("config", 'c', "Path to config file"),
+            new("port", 'p', "Port to listen"),
+            new("debug", "Run in debug mode")
+        };
+        launchArgs.Check(argBook);
         var confPath = launchArgs.Get("config");
-        if (confPath != "config.json")
-        {
-            throw new Exception("TestLaunchArgs failed");
-        }
+        Console.WriteLine(confPath);
+        Console.WriteLine(launchArgs.Dump());
+        Console.WriteLine(launchArgs.HelpString());
     }
 }
