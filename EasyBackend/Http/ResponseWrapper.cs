@@ -5,14 +5,12 @@ namespace EasyBackend.Http;
 
 public class ResponseWrapper(ulong reqId)
 {
-    [JsonIgnore]
-    public ulong ReqId { get; } = reqId;
+    [JsonIgnore] public ulong ReqId { get; } = reqId;
     public string ReqHash { get; } = RequestWrapper.ReqIdHash(reqId);
     public HttpStatusCode StatusCode { get; set; }
     public ResponseErrCode ErrCode { get; set; }
     public string Result { get; set; }
-    [JsonIgnore]
-    public string BriefInfo => $"{ReqId}-[{(int)StatusCode} {StatusCode}]({ErrCode}){Result}";
+    [JsonIgnore] public string BriefInfo => $"{ReqId}-[{(int)StatusCode} {StatusCode}]({ErrCode}){Result}";
 
     public void InitSimple(ResponseErrCode errCode, string result)
     {
@@ -37,5 +35,10 @@ public class ResponseWrapper(ulong reqId)
 
         ErrCode = errCode;
         Result = result;
+    }
+
+    public string ToJson()
+    {
+        return JsonConvert.SerializeObject(this);
     }
 }

@@ -1,4 +1,5 @@
-﻿using EasyBackend.Utils;
+﻿using EasyBackend.Http;
+using EasyBackend.Utils;
 
 namespace EasyBackend;
 
@@ -41,14 +42,20 @@ public class Bootstrap
     public Logger Logger { get; private set; }
     public AppConfig AppConfig { get; private set; }
 
+    private HttpServer _httpServer;
+
     public void Start()
     {
         Logger.Info("Starting...", "Bootstrap");
+        _httpServer = new HttpServer(AppConfig, Logger);
+        _httpServer.Start();
         Logger.Info("Started", "Bootstrap");
     }
 
     public void Shutdown()
     {
         Logger.Info("Shutting down...", "Bootstrap");
+        _httpServer.Stop();
+        _httpServer = null;
     }
 }

@@ -10,6 +10,8 @@ public class HttpServer(AppConfig config, Logger logger)
 
     public void Start()
     {
+        var reqId = RequestWrapper.ResetReqId();
+        logger.Info("RequestId reset to: " + reqId, "Http");
         _listener = new HttpListener();
         _listener.Prefixes.Add($"{config.Host}:{config.Port}/");
         _listener.Start();
@@ -19,31 +21,37 @@ public class HttpServer(AppConfig config, Logger logger)
 
     public void Stop()
     {
+        RequestWrapper.SaveReqId();
         _listener.Stop();
         _listener.Close();
     }
-    
+
     private async void Receive()
     {
         while (_listener.IsListening)
         {
             var ctx = await _listener.GetContextAsync();
-            var req = ctx.Request;
-            var res = ctx.Response;
-            await HandleRequest(req, res);
-            res.Close();
+            _ = Task.Run(() => HandleRequest(ctx));
         }
     }
 
-    private async Task HandleRequest(HttpListenerRequest req, HttpListenerResponse resp)
+    private async Task HandleRequest(HttpListenerContext ctx)
     {
-        logger.Debug("Handle request", "Http");
-        await Task.Delay(1000);
-        resp.StatusCode = 200;
-        resp.ContentType = "text/plain";
-        resp.ContentEncoding = Encoding.UTF8;
-        var buffer = Encoding.UTF8.GetBytes("Hello, World!");
-        resp.ContentLength64 = buffer.Length;
-        await resp.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+        var req = ctx.Request;
+        var res = ctx.Response;
+        var reqWrapper = new RequestWrapper(req);
+        logger.Debug("Request : " + reqWrapper.BriefInfo, "Http");
+        var respWrapper = new ResponseWrapper(reqWrapper.ReqId);
+        respWrapper.InitSimple(ResponseErrCode.Success, "Hello, World!");
+        await Task.Delay(3000);
+        logger.Debug("Response: " + respWrapper.BriefInfo, "Http");
+        var resultJson = respWrapper.ToJson();
+        res.StatusCode = (int)respWrapper.StatusCode;
+        res.ContentType = "application/json; charset=utf-8";
+        res.ContentEncoding = Encoding.UTF8;
+        var buffer = Encoding.UTF8.GetBytes(resultJson);
+        res.ContentLength64 = buffer.Length;
+        await res.OutputStream.WriteAsync(buffer);
+        res.Close();
     }
 }

@@ -1,3 +1,4 @@
+using EasyBackend.Http;
 using EasyBackend.Utils;
 
 namespace EasyBackend.Test;
@@ -8,6 +9,7 @@ public static class RunTests
     {
         TestLaunchArgs();
         TestLogging();
+        TestResponseWrapper();
     }
 
     private static void TestLaunchArgs()
@@ -48,5 +50,13 @@ public static class RunTests
         logger.Warn("Test Warn Message");
         logger.Error("Test Error Message");
         logger.Fatal("Test Fatal Message");
+    }
+    
+    public static void TestResponseWrapper()
+    {
+        var resp = new ResponseWrapper(12345);
+        resp.InitSimple(ResponseErrCode.NotImplement, "Only for testing");
+        Console.WriteLine(resp.BriefInfo);
+        Console.WriteLine(resp.ToJson());
     }
 }
