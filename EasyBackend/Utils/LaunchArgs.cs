@@ -14,12 +14,12 @@ internal class LaunchArgItem
     {
     }
 
-    public LaunchArgItem(string name, char abbr = '\0', string desc = "")
+    public LaunchArgItem(string name, char abbr = '\0', string desc = "", string defaultValue = null)
     {
         Name = name;
         Abbr = abbr;
         Description = desc;
-        Value = null;
+        Value = defaultValue;
     }
 }
 
@@ -31,7 +31,7 @@ internal class LaunchArgs(string[] rawArgs)
     /// <summary>
     /// 检查并解析启动参数
     /// </summary>
-    public void Check(List<LaunchArgItem> argBook)
+    public void ApplyBook(List<LaunchArgItem> argBook)
     {
         _argBook = argBook;
 

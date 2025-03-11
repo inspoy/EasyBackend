@@ -5,26 +5,21 @@ using EasyBackend.Utils;
 
 namespace EasyBackend.Http;
 
-public delegate Task RequestHandler(RequestWrapper req, ResponseWrapper res);
-
 public class HttpServer(AppConfig config, Logger logger)
 {
     private HttpListener _listener;
-    private Router _router = new();
+    private Router _router;
 
-    public void AddHandler(string method, string pathPattern, RequestHandler handler)
+    public void Start(Router router)
     {
-        _router.AddHandler(method, pathPattern, handler);
-    }
-
-    public void Start()
-    {
+        _router = router;
         var reqId = RequestWrapper.ResetReqId();
         logger.Info("RequestId reset to: " + reqId, "Http");
         _listener = new HttpListener();
         _listener.Prefixes.Add($"{config.Host}:{config.Port}/");
         _listener.Start();
         logger.Info($"Listening on {config.Host}:{config.Port}", "Http");
+        logger.Info("Registered routes: \n" + _router.Dump(), "Http");
         Receive();
     }
 
@@ -50,7 +45,7 @@ public class HttpServer(AppConfig config, Logger logger)
         var res = ctx.Response;
         var reqWrapper = new RequestWrapper(req);
         logger.Debug("Request : " + reqWrapper.BriefInfo, "Http");
-        var respWrapper = new ResponseWrapper(reqWrapper.ReqId);
+        var respWrapper = new ResponseWrapper(reqWrapper.ReqId, res);
         var handler = _router.Match(reqWrapper.RawReq.HttpMethod, reqWrapper.RawReq.Url?.LocalPath);
         if (handler == null)
         {
@@ -58,7 +53,7 @@ public class HttpServer(AppConfig config, Logger logger)
         }
         else
         {
-            await handler(reqWrapper, respWrapper);
+            await handler.Execute(reqWrapper, respWrapper);
         }
 
         logger.Debug("Response: " + respWrapper.BriefInfo, "Http");

@@ -1,4 +1,5 @@
 ﻿using EasyBackend.Http;
+using EasyBackend.Routing;
 using EasyBackend.Utils;
 
 namespace EasyBackend;
@@ -10,14 +11,10 @@ public class Bootstrap
         var launchArgs = new LaunchArgs(args);
         var argBook = new List<LaunchArgItem>
         {
-            new("config", 'c', "Path to config file")
+            new("config", 'c', "Path to config file", "appConf.yml")
         };
-        launchArgs.Check(argBook);
+        launchArgs.ApplyBook(argBook);
         var confPath = launchArgs.Get("config");
-        if (confPath == null)
-        {
-            confPath = "appConf.yml";
-        }
 
         var appConfig = AppConfig.ReadFromFile(confPath);
         if (appConfig == null)
@@ -46,11 +43,11 @@ public class Bootstrap
     private string _configPath;
     private HttpServer _httpServer;
 
-    public void Start()
+    public void Start(StartOption option)
     {
         Logger.Info("Starting...", "Bootstrap");
         _httpServer = new HttpServer(AppConfig, Logger);
-        _httpServer.Start();
+        _httpServer.Start(option.Router);
         Logger.Info("Started", "Bootstrap");
     }
 

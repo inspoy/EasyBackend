@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace EasyBackend.Http;
 
-public class ResponseWrapper(ulong reqId)
+public class ResponseWrapper(ulong reqId, HttpListenerResponse rawRes)
 {
     [JsonIgnore] public ulong ReqId { get; } = reqId;
     public string ReqHash { get; } = RequestWrapper.ReqIdHash(reqId);
@@ -43,5 +43,10 @@ public class ResponseWrapper(ulong reqId)
     public string ToJson()
     {
         return JsonConvert.SerializeObject(this);
+    }
+
+    public void SetHeader(string key, string value)
+    {
+        rawRes.AddHeader(key, value);
     }
 }

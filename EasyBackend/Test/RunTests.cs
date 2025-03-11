@@ -23,7 +23,7 @@ public static class RunTests
             new("port", 'p', "Port to listen"),
             new("debug", "Run in debug mode")
         };
-        launchArgs.Check(argBook);
+        launchArgs.ApplyBook(argBook);
         var confPath = launchArgs.Get("config");
         Console.WriteLine(confPath);
         Console.WriteLine(launchArgs.Dump());
@@ -54,7 +54,7 @@ public static class RunTests
     
     public static void TestResponseWrapper()
     {
-        var resp = new ResponseWrapper(12345);
+        var resp = new ResponseWrapper(12345, null);
         resp.InitSimple(ResponseErrCode.NotImplement, "Only for testing");
         Console.WriteLine(resp.BriefInfo);
         Console.WriteLine(resp.ToJson());
