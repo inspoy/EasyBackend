@@ -49,3 +49,16 @@ public class AuthMiddleWare : IMiddleware
     {
     }
 }
+
+public class ThrottleMiddleWare : IMiddleware
+{
+    public bool PreExecute(RequestWrapper req, ResponseWrapper res)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void PostExecute(RequestWrapper req, ResponseWrapper res)
+    {
+        throw new NotImplementedException();
+    }
+}
