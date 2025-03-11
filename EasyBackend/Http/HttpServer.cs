@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Text;
 using EasyBackend.Routing;
@@ -44,7 +45,8 @@ public class HttpServer(AppConfig config, Logger logger)
         var req = ctx.Request;
         var res = ctx.Response;
         var reqWrapper = new RequestWrapper(req);
-        logger.Debug("Request : " + reqWrapper.BriefInfo, "Http");
+        logger.Debug("-> " + reqWrapper.BriefInfo, "Http");
+        var sw = Stopwatch.StartNew();
         var respWrapper = new ResponseWrapper(reqWrapper.ReqId, res);
         var handler = _router.Match(reqWrapper.RawReq.HttpMethod, reqWrapper.RawReq.Url?.LocalPath);
         if (handler == null)
@@ -56,7 +58,8 @@ public class HttpServer(AppConfig config, Logger logger)
             await handler.Execute(reqWrapper, respWrapper);
         }
 
-        logger.Debug("Response: " + respWrapper.BriefInfo, "Http");
+        var timeCost = sw.ElapsedMilliseconds;
+        logger.Debug("<- " + respWrapper.BriefInfo + $"|cost {timeCost:N0}ms", "Http");
         var resultJson = respWrapper.ToJson();
         res.StatusCode = (int)respWrapper.StatusCode;
         res.ContentType = "application/json; charset=utf-8";

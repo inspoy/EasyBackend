@@ -1,5 +1,6 @@
 ﻿using EasyBackend;
 using EasyBackend.Http;
+using EasyBackend.Routing;
 using EasyBackend.Utils;
 
 Console.WriteLine("Hello, World!");
@@ -15,7 +16,7 @@ option.Router.AddHandler("GET", "/ping", (req, res) =>
 {
     res.InitSimple(ResponseErrCode.Success, "pong");
     return Task.CompletedTask;
-});
+}).Middlewares.Add(new AuthMiddleWare("some_very_secret_token"));
 bootstrap.Start(option);
 var running = true;
 Console.CancelKeyPress += (sender, eventArgs) =>

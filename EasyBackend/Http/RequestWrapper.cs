@@ -5,7 +5,7 @@ namespace EasyBackend.Http;
 public partial class RequestWrapper(HttpListenerRequest rawReq)
 {
     public HttpListenerRequest RawReq => rawReq;
-    public ulong ReqId { get; } = _reqId++;
+    public ulong ReqId { get; } = Interlocked.Increment(ref _reqId);
 
     public string BriefInfo =>
         $"{ReqId}-[{rawReq.HttpMethod}] {rawReq.Url?.LocalPath} from {ClientIp}, q={Query.Count}, b={Body.Length}";

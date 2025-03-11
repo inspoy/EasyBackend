@@ -5,29 +5,11 @@ namespace EasyBackend.Routing;
 
 public delegate Task RequestHandlerFunc(RequestWrapper req, ResponseWrapper res);
 
-public class RequestHandler(string method, string pathPattern, RequestHandlerFunc handlerFunc, int priority)
-{
-    public string Method { get; } = method;
-    public string PathPattern { get; } = pathPattern;
-    public RequestHandlerFunc HandlerFunc { get; } = handlerFunc;
-    public int Priority { get; } = priority;
-
-    public bool TestPath(string path)
-    {
-        return PathPattern == path;
-    }
-
-    public async Task Execute(RequestWrapper req, ResponseWrapper res)
-    {
-        await HandlerFunc(req, res);
-    }
-}
-
 public class Router
 {
     private readonly List<RequestHandler> _handlers = new();
 
-    public void AddHandler(string method, string pathPattern, RequestHandlerFunc handler, int priority = -1)
+    public RequestHandler AddHandler(string method, string pathPattern, RequestHandlerFunc handler, int priority = -1)
     {
         if (method.Contains('|'))
         {
@@ -38,12 +20,15 @@ public class Router
                 AddHandler(m, pathPattern, handler, priority);
             }
 
-            return;
+            return null;
         }
 
         if (priority < 0) priority = pathPattern.Length;
-        _handlers.Add(new RequestHandler(method, pathPattern, handler, priority));
+        var newOne = new RequestHandler(method, pathPattern, handler, priority);
+        _handlers.Add(newOne);
         _handlers.Sort((a, b) => b.Priority - a.Priority);
+
+        return newOne;
     }
 
     public RequestHandler Match(string method, string path)
@@ -63,6 +48,7 @@ public class Router
         {
             sb.Append($"  [{item.Method}] {item.PathPattern}\n");
         }
+
         return sb.ToString();
     }
 }
