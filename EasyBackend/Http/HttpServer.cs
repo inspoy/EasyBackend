@@ -1,12 +1,21 @@
 using System.Net;
 using System.Text;
+using EasyBackend.Routing;
 using EasyBackend.Utils;
 
 namespace EasyBackend.Http;
 
+public delegate Task RequestHandler(RequestWrapper req, ResponseWrapper res);
+
 public class HttpServer(AppConfig config, Logger logger)
 {
     private HttpListener _listener;
+    private Router _router = new();
+
+    public void AddHandler(string method, string pathPattern, RequestHandler handler)
+    {
+        _router.AddHandler(method, pathPattern, handler);
+    }
 
     public void Start()
     {
@@ -42,8 +51,16 @@ public class HttpServer(AppConfig config, Logger logger)
         var reqWrapper = new RequestWrapper(req);
         logger.Debug("Request : " + reqWrapper.BriefInfo, "Http");
         var respWrapper = new ResponseWrapper(reqWrapper.ReqId);
-        respWrapper.InitSimple(ResponseErrCode.Success, "Hello, World!");
-        await Task.Delay(3000);
+        var handler = _router.Match(reqWrapper.RawReq.HttpMethod, reqWrapper.RawReq.Url?.LocalPath);
+        if (handler == null)
+        {
+            respWrapper.InitSimple(ResponseErrCode.NotFound, "No handler for this request");
+        }
+        else
+        {
+            await handler(reqWrapper, respWrapper);
+        }
+
         logger.Debug("Response: " + respWrapper.BriefInfo, "Http");
         var resultJson = respWrapper.ToJson();
         res.StatusCode = (int)respWrapper.StatusCode;
@@ -53,5 +70,7 @@ public class HttpServer(AppConfig config, Logger logger)
         res.ContentLength64 = buffer.Length;
         await res.OutputStream.WriteAsync(buffer);
         res.Close();
+
+        RequestWrapper.SaveReqId();
     }
 }

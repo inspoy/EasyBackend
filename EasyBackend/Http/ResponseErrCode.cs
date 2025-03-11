@@ -7,5 +7,6 @@ public enum ResponseErrCode
     InvalidToken = 2,
     ServerError = 3,
     NotImplement = 4,
-    ThirdPartyError = 5,
+    NotFound = 5,
+    ThirdPartyError = 6,
 }

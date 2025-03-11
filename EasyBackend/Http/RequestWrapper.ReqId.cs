@@ -33,7 +33,14 @@ public partial class RequestWrapper
     }
 
     public static void ResetReqId(ulong reqId) => _reqId = reqId;
-    public static void SaveReqId() => File.WriteAllText(ReqIdSavePath, _reqId.ToString());
+
+    public static void SaveReqId()
+    {
+        lock (HashBuffer)
+        {
+            File.WriteAllText(ReqIdSavePath, _reqId.ToString());
+        }
+    }
 
     public static string ReqIdHash(ulong reqId)
     {

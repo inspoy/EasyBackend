@@ -28,6 +28,9 @@ public class ResponseWrapper(ulong reqId)
             case ResponseErrCode.NotImplement:
                 StatusCode = HttpStatusCode.NotImplemented;
                 break;
+            case ResponseErrCode.NotFound:
+                StatusCode = HttpStatusCode.NotFound;
+                break;
             default:
                 StatusCode = HttpStatusCode.InternalServerError;
                 break;

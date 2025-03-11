@@ -33,9 +33,8 @@ internal class LaunchArgs(string[] rawArgs)
     /// </summary>
     public void Check(List<LaunchArgItem> argBook)
     {
-        if (rawArgs.Length == 0) return;
-
         _argBook = argBook;
+
         var dictArgBook = argBook.ToDictionary(el => el.Name);
         var idx = 0;
         while (idx < rawArgs.Length)
@@ -117,6 +116,7 @@ internal class LaunchArgs(string[] rawArgs)
             if (string.IsNullOrEmpty(item.Value) && !includeUndefined) continue;
             sb.Append($"  {item.Name}: {item.Value}\n");
         }
+
         foreach (var (key, value) in _extraArgs)
         {
             sb.Append($"  {key}: {value}\n");
@@ -128,6 +128,7 @@ internal class LaunchArgs(string[] rawArgs)
     [CanBeNull]
     public string Get(string argName)
     {
+        if (_argBook == null) return null;
         foreach (var item in _argBook)
         {
             if (item.Name == argName)

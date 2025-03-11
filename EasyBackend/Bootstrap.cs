@@ -16,7 +16,7 @@ public class Bootstrap
         var confPath = launchArgs.Get("config");
         if (confPath == null)
         {
-            return null;
+            confPath = "appConf.yml";
         }
 
         var appConfig = AppConfig.ReadFromFile(confPath);
@@ -33,7 +33,8 @@ public class Bootstrap
         {
             Logger = logger,
             LaunchArgs = launchArgs,
-            AppConfig = appConfig
+            AppConfig = appConfig,
+            _configPath = confPath
         };
         return bootstrap;
     }
@@ -42,6 +43,7 @@ public class Bootstrap
     public Logger Logger { get; private set; }
     public AppConfig AppConfig { get; private set; }
 
+    private string _configPath;
     private HttpServer _httpServer;
 
     public void Start()
@@ -57,5 +59,14 @@ public class Bootstrap
         Logger.Info("Shutting down...", "Bootstrap");
         _httpServer.Stop();
         _httpServer = null;
+    }
+
+    public void ReloadConfig()
+    {
+        var appConfig = AppConfig.ReadFromFile(_configPath);
+        if (appConfig != null)
+        {
+            AppConfig = appConfig;
+        }
     }
 }

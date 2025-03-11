@@ -54,9 +54,12 @@ public class Logger
             message = $"[{module}]" + message;
         }
 
-        foreach (var handler in _logHandlers.Values)
+        lock (_logHandlers)
         {
-            handler?.DoLog(level, message);
+            foreach (var handler in _logHandlers.Values)
+            {
+                handler?.DoLog(level, message);
+            }
         }
     }
 }
