@@ -12,18 +12,20 @@ if (bootstrap == null)
 }
 
 var option = StartOption.CreateSimple();
-option.Router.AddHandler("GET", "/ping", (req, res) =>
+var pingHandler = option.Router.AddHandler("GET", "/ping", (req, res) =>
 {
     res.InitSimple(ResponseErrCode.Success, "pong");
     return Task.CompletedTask;
-}).Middlewares.Add(new AuthMiddleWare("some_very_secret_token"));
-bootstrap.Start(option);
-var running = true;
-Console.CancelKeyPress += (sender, eventArgs) =>
-{
-    eventArgs.Cancel = true;
-    bootstrap.Logger.Info("Ctrl+C detected, shutting down...");
-    running = false;
-};
-while (running) Thread.Sleep(1000);
-bootstrap.Shutdown();
+});
+pingHandler.AddMiddleware(
+    new SimpleUserManagerMiddleware(new List<SimpleUserManagerMiddleware.UserProfile>
+    {
+        new()
+        {
+            Token = "123456",
+            TimeWindowMs = 5000,
+            ReqLimit = 3
+        }
+    })
+);
+bootstrap.StartDaemon(option);

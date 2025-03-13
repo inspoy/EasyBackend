@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using EasyBackend.Http;
+using EasyBackend.Utils;
 
 namespace EasyBackend.Routing;
 
@@ -56,7 +57,15 @@ public class Router
         _handlers.Sort((a, b) => b.Priority - a.Priority);
         foreach (var handler in _handlers)
         {
-            handler.Middlewares.Sort((a, b) => a.Sorting - b.Sorting);
+            handler.SortMiddlewares();
+        }
+    }
+
+    public void SetInstance(Bootstrap instance)
+    {
+        foreach (var handler in _handlers)
+        {
+            handler.Instance = instance;
         }
     }
 }

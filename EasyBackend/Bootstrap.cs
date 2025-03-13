@@ -39,14 +39,29 @@ public class Bootstrap
     internal LaunchArgs LaunchArgs { get; private set; }
     public Logger Logger { get; private set; }
     public AppConfig AppConfig { get; private set; }
+    public event Action AppConfigChanged;
 
     private string _configPath;
     private HttpServer _httpServer;
 
+    public void StartDaemon(StartOption option)
+    {
+        Start(option);
+        var running = true;
+        Console.CancelKeyPress += (sender, eventArgs) =>
+        {
+            eventArgs.Cancel = true;
+            Logger.Info("Ctrl+C detected, shutting down...");
+            running = false;
+        };
+        while (running) Thread.Sleep(1000);
+        Shutdown();
+    }
+
     public void Start(StartOption option)
     {
         Logger.Info("Starting...", "Bootstrap");
-        _httpServer = new HttpServer(AppConfig, Logger);
+        _httpServer = new HttpServer(this);
         _httpServer.Start(option.Router);
         Logger.Info("Started", "Bootstrap");
     }
@@ -64,6 +79,7 @@ public class Bootstrap
         if (appConfig != null)
         {
             AppConfig = appConfig;
+            AppConfigChanged?.Invoke();
         }
     }
 }

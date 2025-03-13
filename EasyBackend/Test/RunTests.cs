@@ -16,7 +16,7 @@ public static class RunTests
 
     private static void TestThrottleMiddleware()
     {
-        var throttle = new ThrottleMiddleWare(2000, 5);
+        var throttle = new ThrottleMiddleware(2000, 5);
         for (var i = 0; i < 10; ++i)
         {
             var req = new RequestWrapper(null);

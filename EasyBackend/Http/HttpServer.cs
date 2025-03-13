@@ -6,7 +6,7 @@ using EasyBackend.Utils;
 
 namespace EasyBackend.Http;
 
-public class HttpServer(AppConfig config, Logger logger)
+public class HttpServer(Bootstrap instance)
 {
     private HttpListener _listener;
     private Router _router;
@@ -15,13 +15,14 @@ public class HttpServer(AppConfig config, Logger logger)
     {
         _router = router;
         _router.Sort();
+        _router.SetInstance(instance);
         var reqId = RequestWrapper.ResetReqId();
-        logger.Info("RequestId reset to: " + reqId, "Http");
+        instance.Logger.Info("RequestId reset to: " + reqId, "Http");
         _listener = new HttpListener();
-        _listener.Prefixes.Add($"{config.Host}:{config.Port}/");
+        _listener.Prefixes.Add($"{instance.AppConfig.Host}:{instance.AppConfig.Port}/");
         _listener.Start();
-        logger.Info($"Listening on {config.Host}:{config.Port}", "Http");
-        logger.Info("Registered routes: \n" + _router.Dump(), "Http");
+        instance.Logger.Info("Registered routes: \n" + _router.Dump(), "Http");
+        instance.Logger.Info($"Listening on {instance.AppConfig.Host}:{instance.AppConfig.Port}", "Http");
         Receive();
     }
 
@@ -46,7 +47,7 @@ public class HttpServer(AppConfig config, Logger logger)
         var req = ctx.Request;
         var res = ctx.Response;
         var reqWrapper = new RequestWrapper(req);
-        logger.Debug("-> " + reqWrapper.BriefInfo, "Http");
+        instance.Logger.Debug("-> " + reqWrapper.BriefInfo, "Http");
         var sw = Stopwatch.StartNew();
         var respWrapper = new ResponseWrapper(reqWrapper.ReqId, res);
         var handler = _router.Match(reqWrapper.RawReq.HttpMethod, reqWrapper.RawReq.Url?.LocalPath);
@@ -60,7 +61,7 @@ public class HttpServer(AppConfig config, Logger logger)
         }
 
         var timeCost = sw.ElapsedMilliseconds;
-        logger.Debug("<- " + respWrapper.BriefInfo + $"|cost {timeCost:N0}ms", "Http");
+        instance.Logger.Debug("<- " + respWrapper.BriefInfo + $"|cost {timeCost:N0}ms", "Http");
         var resultJson = respWrapper.ToJson();
         res.StatusCode = (int)respWrapper.StatusCode;
         res.ContentType = "application/json; charset=utf-8";

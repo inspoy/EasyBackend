@@ -128,7 +128,7 @@ internal class FileLogHandler(string logFolder) : ILogHandler
                 using var swErr = new StreamWriter(errorFile, true, Encoding.UTF8);
                 swErr.WriteLine(finalMessage);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignore
             }
