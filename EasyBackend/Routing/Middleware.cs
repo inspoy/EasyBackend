@@ -6,6 +6,10 @@ namespace EasyBackend.Routing;
 public interface IMiddleware
 {
     /// <summary>
+    /// 约小的优先级越高
+    /// </summary>
+    int Sorting { get; }
+    /// <summary>
     /// 返回true表示执行成功，返回false表示执行失败应直接结束请求
     /// </summary>
     bool PreExecute(RequestWrapper req, ResponseWrapper res);
@@ -15,6 +19,8 @@ public interface IMiddleware
 
 public class AuthMiddleWare : IMiddleware
 {
+    public int Sorting { get; } = 200;
+
     private readonly string _authString;
 
     public AuthMiddleWare(string bearerToken)
@@ -50,24 +56,41 @@ public class AuthMiddleWare : IMiddleware
     }
 }
 
-public class ThrottleMiddleWare : IMiddleware
+public class ThrottleMiddleWare(int timeWindowMs, int reqLimit) : IMiddleware
 {
-    public ulong IntervalMs { get; set; }
+    public int Sorting { get; } = 100;
 
-    private readonly Dictionary<string, ulong> _lastReqTime = new();
+    private readonly Dictionary<string, Queue<long>> _requestTimestamps = new();
 
     public bool PreExecute(RequestWrapper req, ResponseWrapper res)
     {
-        var now = (ulong)DateTimeOffset.Now.ToUnixTimeSeconds();
+        var now = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         var ip = req.ClientIp;
-        if (_lastReqTime.TryGetValue(ip, out var lastReqTime)
-            && now - lastReqTime < IntervalMs)
+        
+        // 1. 确保队列
+        if (!_requestTimestamps.TryGetValue(ip, out var timestamps))
         {
-            res.InitSimple(ResponseErrCode.TooManyRequests, "Too many requests");
+            timestamps = new Queue<long>();
+            _requestTimestamps[ip] = timestamps;
+        }
+
+        // 2. 清理过期信息
+        while (timestamps.Count > 0 && now - timestamps.Peek() > timeWindowMs)
+        {
+            timestamps.Dequeue();
+        }
+
+        // 3. 检查
+        if (timestamps.Count >= reqLimit)
+        {
+            var first = timestamps.Peek();
+            var waitTime = first + timeWindowMs - now;
+            res.InitSimple(ResponseErrCode.TooManyRequests, $"Try again after {waitTime} ms");
             return false;
         }
 
-        _lastReqTime[ip] = now;
+        // 4. 记录
+        timestamps.Enqueue(now);
         return true;
     }
 

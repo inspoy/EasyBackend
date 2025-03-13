@@ -1,4 +1,5 @@
 using EasyBackend.Http;
+using EasyBackend.Routing;
 using EasyBackend.Utils;
 
 namespace EasyBackend.Test;
@@ -10,6 +11,20 @@ public static class RunTests
         TestLaunchArgs();
         TestLogging();
         TestResponseWrapper();
+        TestThrottleMiddleware();
+    }
+
+    private static void TestThrottleMiddleware()
+    {
+        var throttle = new ThrottleMiddleWare(2000, 5);
+        for (var i = 0; i < 10; ++i)
+        {
+            var req = new RequestWrapper(null);
+            var res = new ResponseWrapper(req.ReqId, null);
+            var result = throttle.PreExecute(req, res);
+            Console.WriteLine($"{res.ReqId} - {result} - {res.Result}");
+            Thread.Sleep(300);
+        }
     }
 
     private static void TestLaunchArgs()
@@ -51,7 +66,7 @@ public static class RunTests
         logger.Error("Test Error Message");
         logger.Fatal("Test Fatal Message");
     }
-    
+
     public static void TestResponseWrapper()
     {
         var resp = new ResponseWrapper(12345, null);

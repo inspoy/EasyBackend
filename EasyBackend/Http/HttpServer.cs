@@ -14,6 +14,7 @@ public class HttpServer(AppConfig config, Logger logger)
     public void Start(Router router)
     {
         _router = router;
+        _router.Sort();
         var reqId = RequestWrapper.ResetReqId();
         logger.Info("RequestId reset to: " + reqId, "Http");
         _listener = new HttpListener();

@@ -11,9 +11,10 @@ public partial class RequestWrapper(HttpListenerRequest rawReq)
         $"{ReqId}-[{rawReq.HttpMethod}] {rawReq.Url?.LocalPath} from {ClientIp}, q={Query.Count}, b={Body.Length}";
 
     public string ClientIp =>
-        _clientIp ??= rawReq.Headers.Get("X-Real-Ip") ??
-                      rawReq.Headers.Get("Remote_Ip") ??
-                      rawReq.RemoteEndPoint?.Address.ToString();
+        _clientIp ??= rawReq?.Headers.Get("X-Real-Ip") ??
+                      rawReq?.Headers.Get("Remote_Ip") ??
+                      rawReq?.RemoteEndPoint?.Address.ToString() ??
+                      "unknown";
 
     public Dictionary<string, string> Query
     {

@@ -26,7 +26,6 @@ public class Router
         if (priority < 0) priority = pathPattern.Length;
         var newOne = new RequestHandler(method, pathPattern, handler, priority);
         _handlers.Add(newOne);
-        _handlers.Sort((a, b) => b.Priority - a.Priority);
 
         return newOne;
     }
@@ -50,5 +49,14 @@ public class Router
         }
 
         return sb.ToString();
+    }
+
+    public void Sort()
+    {
+        _handlers.Sort((a, b) => b.Priority - a.Priority);
+        foreach (var handler in _handlers)
+        {
+            handler.Middlewares.Sort((a, b) => a.Sorting - b.Sorting);
+        }
     }
 }
