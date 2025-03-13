@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 // ReSharper disable UnassignedField.Global
@@ -32,6 +33,12 @@ public class AppConfig
             Console.Error.WriteLine("Failed to read config file: " + e.Message);
             return null;
         }
+    }
+
+    public static T ToObject<T>(dynamic od)
+    {
+        string jsonString = JsonConvert.SerializeObject(od);
+        return JsonConvert.DeserializeObject<T>(jsonString);
     }
 }
 
