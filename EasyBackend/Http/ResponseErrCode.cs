@@ -9,4 +9,5 @@ public enum ResponseErrCode
     NotImplement = 4,
     NotFound = 5,
     ThirdPartyError = 6,
+    TooManyRequests = 7,
 }

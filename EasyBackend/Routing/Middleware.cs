@@ -52,13 +52,26 @@ public class AuthMiddleWare : IMiddleware
 
 public class ThrottleMiddleWare : IMiddleware
 {
+    public ulong IntervalMs { get; set; }
+
+    private readonly Dictionary<string, ulong> _lastReqTime = new();
+
     public bool PreExecute(RequestWrapper req, ResponseWrapper res)
     {
-        throw new NotImplementedException();
+        var now = (ulong)DateTimeOffset.Now.ToUnixTimeSeconds();
+        var ip = req.ClientIp;
+        if (_lastReqTime.TryGetValue(ip, out var lastReqTime)
+            && now - lastReqTime < IntervalMs)
+        {
+            res.InitSimple(ResponseErrCode.TooManyRequests, "Too many requests");
+            return false;
+        }
+
+        _lastReqTime[ip] = now;
+        return true;
     }
 
     public void PostExecute(RequestWrapper req, ResponseWrapper res)
     {
-        throw new NotImplementedException();
     }
 }

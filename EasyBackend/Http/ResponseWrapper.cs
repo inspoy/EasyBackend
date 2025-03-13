@@ -31,6 +31,9 @@ public class ResponseWrapper(ulong reqId, HttpListenerResponse rawRes)
             case ResponseErrCode.NotFound:
                 StatusCode = HttpStatusCode.NotFound;
                 break;
+            case ResponseErrCode.TooManyRequests:
+                StatusCode = HttpStatusCode.TooManyRequests;
+                break;
             default:
                 StatusCode = HttpStatusCode.InternalServerError;
                 break;
