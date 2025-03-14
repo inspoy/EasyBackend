@@ -24,6 +24,7 @@ public class AppConfig
             var yml = File.ReadAllText(filePath);
             var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .IgnoreUnmatchedProperties()
                 .Build();
             var ret = deserializer.Deserialize<AppConfig>(yml);
             ret.RawYaml = deserializer.Deserialize<dynamic>(yml);
