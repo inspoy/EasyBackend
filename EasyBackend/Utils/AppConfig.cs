@@ -13,6 +13,7 @@ public class AppConfig
     public string Host;
     public int Port;
     public AppConfigLogging Logging;
+    public AppConfigReload Reload;
 
     [CanBeNull]
     public static AppConfig ReadFromFile(string filePath)
@@ -47,4 +48,11 @@ public class AppConfigLogging
     public bool ConsoleEnabled;
     public bool ConsoleColor;
     public string LogFileFolder;
+}
+
+public class AppConfigReload
+{
+    public bool Enabled;
+    public string Path;
+    public string Token;
 }

@@ -2,6 +2,7 @@
 
 public enum ResponseErrCode
 {
+    Unknown = -1,
     Success = 0,
     InvalidRequest = 1,
     InvalidToken = 2,

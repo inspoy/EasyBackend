@@ -78,8 +78,10 @@ public class Bootstrap
         var appConfig = AppConfig.ReadFromFile(_configPath);
         if (appConfig != null)
         {
+            Logger.Info("Config reloaded", "Bootstrap");
             AppConfig = appConfig;
             AppConfigChanged?.Invoke();
+            Logger.Info("New config has notified to handlers", "Bootstrap");
         }
     }
 }

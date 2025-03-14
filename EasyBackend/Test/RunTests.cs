@@ -22,7 +22,7 @@ public static class RunTests
             var req = new RequestWrapper(null);
             var res = new ResponseWrapper(req.ReqId, null);
             var result = throttle.PreExecute(req, res);
-            Console.WriteLine($"{res.ReqId} - {result} - {res.Result}");
+            Console.WriteLine($"{res.ReqId} - {result} - {res.ToJson()}");
             Thread.Sleep(300);
         }
     }

@@ -4,3 +4,7 @@ logging:
   consoleEnabled: true
   consoleColor: true
   logFileFolder: ./logs
+reload:
+  enabled: true
+  path: /reload_config
+  token: 123

@@ -14,8 +14,7 @@ public class HttpServer(Bootstrap instance)
     public void Start(Router router)
     {
         _router = router;
-        _router.Sort();
-        _router.SetInstance(instance);
+        _router.Use(instance);
         var reqId = RequestWrapper.ResetReqId();
         instance.Logger.Info("RequestId reset to: " + reqId, "Http");
         _listener = new HttpListener();
@@ -31,6 +30,7 @@ public class HttpServer(Bootstrap instance)
         RequestWrapper.SaveReqId();
         _listener.Stop();
         _listener.Close();
+        _router.UnUse();
     }
 
     private async void Receive()

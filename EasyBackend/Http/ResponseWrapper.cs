@@ -1,18 +1,18 @@
 using System.Net;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace EasyBackend.Http;
 
 public class ResponseWrapper(ulong reqId, HttpListenerResponse rawRes)
 {
-    [JsonIgnore] public ulong ReqId { get; } = reqId;
-    public string ReqHash { get; } = RequestWrapper.ReqIdHash(reqId);
-    public HttpStatusCode StatusCode { get; set; }
-    public ResponseErrCode ErrCode { get; set; }
-    public string Result { get; set; }
-    [JsonIgnore] public string BriefInfo => $"{ReqId}-[{(int)StatusCode} {StatusCode}]({ErrCode}){Result}";
+    public ulong ReqId { get; } = reqId;
+    public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.InternalServerError;
+    public ResponseErrCode ErrCode { get; set; } = ResponseErrCode.Unknown;
+    public JObject Result { get; } = new();
+    public string BriefInfo => $"{ReqId}-[{(int)StatusCode} {StatusCode}]({ErrCode}){ToJson()}";
 
-    public void InitSimple(ResponseErrCode errCode, string result)
+    public void InitSimple(ResponseErrCode errCode, string result = null)
     {
         switch (errCode)
         {
@@ -40,12 +40,19 @@ public class ResponseWrapper(ulong reqId, HttpListenerResponse rawRes)
         }
 
         ErrCode = errCode;
-        Result = result;
+        if (!string.IsNullOrEmpty(result))
+        {
+            Result["Message"] = result;
+        }
     }
 
     public string ToJson()
     {
-        return JsonConvert.SerializeObject(this);
+        if (!Result.ContainsKey("Code"))
+            Result.AddFirst(new JProperty("Code", (int)ErrCode));
+        if (!Result.ContainsKey("Request"))
+            Result.AddFirst(new JProperty("Request", RequestWrapper.ReqIdHash(reqId)));
+        return JsonConvert.SerializeObject(Result);
     }
 
     public void SetHeader(string key, string value)

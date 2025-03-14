@@ -7,6 +7,7 @@ public class RequestHandler(string method, string pathPattern, RequestHandlerFun
 {
     private void OnAppConfigChanged()
     {
+        ReConfigFunc?.Invoke(Instance.AppConfig, this);
         foreach (var wrapper in _middlewares)
         {
             wrapper.ConfigAction(Instance.AppConfig, wrapper.Middleware);
@@ -17,14 +18,22 @@ public class RequestHandler(string method, string pathPattern, RequestHandlerFun
     public string PathPattern { get; } = pathPattern;
     public RequestHandlerFunc HandlerFunc { get; } = handlerFunc;
     public int Priority { get; } = priority;
+    public HandlerReConfigFunc ReConfigFunc { get; set; }
 
     internal Bootstrap Instance
     {
         get => _instance;
         set
         {
+            if (value == null && _instance != null)
+            {
+                _instance.AppConfigChanged -= OnAppConfigChanged;
+            }
+
             _instance = value;
+            if (_instance == null) return;
             _instance.AppConfigChanged += OnAppConfigChanged;
+            OnAppConfigChanged();
         }
     }
 
