@@ -1,7 +1,9 @@
+using System.Dynamic;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+
 // ReSharper disable UnassignedField.Global
 // ReSharper disable ClassNeverInstantiated.Global
 
@@ -24,10 +26,11 @@ public class AppConfig
             var yml = File.ReadAllText(filePath);
             var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .WithTypeConverter(new ExpandoConverter())
                 .IgnoreUnmatchedProperties()
                 .Build();
             var ret = deserializer.Deserialize<AppConfig>(yml);
-            ret.RawYaml = deserializer.Deserialize<dynamic>(yml);
+            ret.RawYaml = deserializer.Deserialize<ExpandoObject>(yml);
             return ret;
         }
         catch (Exception e)
