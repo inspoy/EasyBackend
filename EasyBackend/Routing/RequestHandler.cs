@@ -16,9 +16,11 @@ public class RequestHandler(string method, string pathPattern, RequestHandlerFun
 
     public string Method { get; } = method;
     public string PathPattern { get; } = pathPattern;
+    public Dictionary<string, string> PathParams { get; private set; }
     public RequestHandlerFunc HandlerFunc { get; } = handlerFunc;
     public int Priority { get; } = priority;
     public HandlerReConfigFunc ReConfigFunc { get; set; }
+
 
     internal Bootstrap Instance
     {
@@ -54,9 +56,71 @@ public class RequestHandler(string method, string pathPattern, RequestHandlerFun
         _middlewares.Sort();
     }
 
-    public bool TestPath(string path)
+    public bool TestPath(string path, out Dictionary<string, string> pathParams)
     {
-        return PathPattern == path;
+        pathParams = null;
+        // 完全相等的情况
+        if (PathPattern == path) return true;
+
+        var pattern = PathPattern.Split('/');
+        var pathParts = path.Split('/');
+
+        // 处理通配符情况
+        if (PathPattern.EndsWith("/*"))
+        {
+            // 去掉通配符的部分
+            var basePathParts = PathPattern.Substring(0, PathPattern.Length - 2).Split('/');
+
+            // 判断基本路径分段数量
+            if (pathParts.Length <= basePathParts.Length) return false;
+
+            // 检查除了通配符外的基本路径是否匹配
+            for (var i = 0; i < basePathParts.Length; i++)
+            {
+                if (basePathParts[i] == pathParts[i]) continue;
+                if (basePathParts[i].StartsWith("{") && basePathParts[i].EndsWith("}"))
+                {
+                    // 提取参数
+                    var paramName = basePathParts[i].Substring(1, basePathParts[i].Length - 2);
+                    pathParams ??= new();
+                    pathParams.Add(paramName, pathParts[i]);
+                    continue;
+                }
+
+                return false;
+            }
+
+            // 将剩余路径作为通配符参数
+            var wildcardPath = string.Join("/", pathParts.Skip(basePathParts.Length));
+            pathParams ??= new();
+            pathParams.Add("wildcard", wildcardPath);
+            return true;
+        }
+
+        // 参数化路径处理 (包含 {} 的路径但没有通配符)
+        if (PathPattern.Contains("{") && PathPattern.Contains("}"))
+        {
+            if (pattern.Length != pathParts.Length) return false;
+
+            for (var i = 0; i < pattern.Length; i++)
+            {
+                if (pattern[i] == pathParts[i]) continue;
+                if (pattern[i].StartsWith("{") && pattern[i].EndsWith("}"))
+                {
+                    // 提取参数
+                    var paramName = pattern[i].Substring(1, pattern[i].Length - 2);
+                    pathParams ??= new();
+                    pathParams.Add(paramName, pathParts[i]);
+                    continue;
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public async Task Execute(RequestWrapper req, ResponseWrapper res)
@@ -73,5 +137,10 @@ public class RequestHandler(string method, string pathPattern, RequestHandlerFun
         {
             wrapper.Middleware.PostExecute(req, res);
         }
+    }
+
+    public void SetPathParams(Dictionary<string, string> pathParams)
+    {
+        PathParams = pathParams;
     }
 }

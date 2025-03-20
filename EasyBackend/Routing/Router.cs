@@ -34,11 +34,26 @@ public class Router
         return newOne;
     }
 
-    public RequestHandler Match(string method, string path)
+    /// <summary>
+    /// 匹配请求对应的处理器
+    /// </summary>
+    /// <param name="req">请求包装器</param>
+    /// <returns>匹配成功返回对应的请求处理器，否则返回null</returns>
+    /// <remarks>
+    /// 该方法遍历所有注册的处理器，根据HTTP方法和URL路径进行匹配。
+    /// 当找到匹配的处理器时，会设置路径参数并返回该处理器。
+    /// </remarks>
+    public RequestHandler Match(RequestWrapper req)
     {
+        var method = req.RawReq.HttpMethod;
+        var path = req.RawReq.Url?.LocalPath;
         foreach (var item in _handlers)
         {
-            if (item.Method == method && item.TestPath(path)) return item;
+            if (item.Method == method && item.TestPath(path, out var pathParams))
+            {
+                item.SetPathParams(pathParams);
+                return item;
+            }
         }
 
         return null;

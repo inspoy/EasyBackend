@@ -50,13 +50,14 @@ public class HttpServer(Bootstrap instance)
         instance.Logger.Debug("-> " + reqWrapper.BriefInfo, "Http");
         var sw = Stopwatch.StartNew();
         var respWrapper = new ResponseWrapper(reqWrapper.ReqId, res);
-        var handler = _router.Match(reqWrapper.RawReq.HttpMethod, reqWrapper.RawReq.Url?.LocalPath);
+        var handler = _router.Match(reqWrapper);
         if (handler == null)
         {
             respWrapper.InitSimple(ResponseErrCode.NotFound, "No handler for this request");
         }
         else
         {
+            instance.Logger.Debug("Handle with " + handler.PathPattern, "Http");
             await handler.Execute(reqWrapper, respWrapper);
         }
 
