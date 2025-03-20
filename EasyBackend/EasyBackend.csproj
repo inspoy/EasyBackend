@@ -1,28 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Version>1.0.1</Version>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Title>EasyBackend</Title>
+    <Authors>inspoy</Authors>
+    <PackageProjectUrl>https://github.com/inspoy/EasyBackend</PackageProjectUrl>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="SimpleUsage\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Remove="SimpleUsage\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="SimpleUsage\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.IO.Hashing" Version="9.0.2" />
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 
 </Project>
