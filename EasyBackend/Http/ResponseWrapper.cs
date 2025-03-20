@@ -51,7 +51,7 @@ public class ResponseWrapper(ulong reqId, HttpListenerResponse rawRes)
         if (!Result.ContainsKey("Code"))
             Result.AddFirst(new JProperty("Code", (int)ErrCode));
         if (!Result.ContainsKey("Request"))
-            Result.AddFirst(new JProperty("Request", RequestWrapper.ReqIdHash(reqId)));
+            Result.AddFirst(new JProperty("Request", RequestWrapper.ReqIdHash(ReqId)));
         return JsonConvert.SerializeObject(Result);
     }
 
