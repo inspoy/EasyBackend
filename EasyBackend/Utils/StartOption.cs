@@ -44,6 +44,16 @@ public class StartOption
         return this;
     }
 
+    public StartOption WithPing()
+    {
+        Router.AddHandler("GET", "/ping", (req, res) =>
+        {
+            res.InitSimple(ResponseErrCode.Success, "pong");
+            return Task.CompletedTask;
+        });
+        return this;
+    }
+
     public StartOption WithReload(AppConfigReload cfg, Action reloadAction)
     {
         if (cfg == null || !cfg.Enabled) return this;
