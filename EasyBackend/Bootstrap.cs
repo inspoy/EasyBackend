@@ -1,6 +1,8 @@
-﻿using EasyBackend.Http;
-using EasyBackend.Routing;
+﻿using System.Runtime.CompilerServices;
+using EasyBackend.Http;
 using EasyBackend.Utils;
+
+[assembly: InternalsVisibleTo("UnitTests")]
 
 namespace EasyBackend;
 

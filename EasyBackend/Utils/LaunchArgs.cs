@@ -125,6 +125,11 @@ internal class LaunchArgs(string[] rawArgs)
         return sb.ToString();
     }
 
+    /// <summary>
+    /// 根据参数名称获取参数值
+    /// </summary>
+    /// <param name="argName">要获取的参数名称</param>
+    /// <returns>如果找到参数则返回其值，否则返回null</returns>
     [CanBeNull]
     public string Get(string argName)
     {
@@ -137,6 +142,6 @@ internal class LaunchArgs(string[] rawArgs)
             }
         }
 
-        return null;
+        return _extraArgs.GetValueOrDefault(argName);
     }
 }
