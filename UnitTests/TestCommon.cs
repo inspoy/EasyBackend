@@ -8,6 +8,13 @@ public class TestCommon
     [SetUp]
     public void Setup()
     {
+        Console.WriteLine("Start TestCommon");
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        Console.WriteLine("Finish TestCommon");
     }
 
     [Test]
@@ -49,25 +56,49 @@ public class TestCommon
         });
         var containModule = Does.Contain("TestModule");
 
-        var output = Utils.GetOutput(()=>{ logger.Debug("Test Debug Message", "TestModule"); });
+        var output = Utils.GetOutput(() => { logger.Debug("Test Debug Message", "TestModule"); });
         Assert.That(output, Does.Contain("Debug"));
         Assert.That(output, containModule);
         Assert.That(output, Does.Contain("Test Debug Message"));
-        output = Utils.GetOutput(()=>{ logger.Info("Test Info Message", "TestModule"); });
+        output = Utils.GetOutput(() => { logger.Info("Test Info Message", "TestModule"); });
         Assert.That(output, Does.Contain("Info"));
         Assert.That(output, containModule);
         Assert.That(output, Does.Contain("Test Info Message"));
-        output = Utils.GetOutput(()=>{ logger.Warn("Test Warn Message", "TestModule"); });
+        output = Utils.GetOutput(() => { logger.Warn("Test Warn Message", "TestModule"); });
         Assert.That(output, Does.Contain("Warn"));
         Assert.That(output, containModule);
         Assert.That(output, Does.Contain("Test Warn Message"));
-        output = Utils.GetOutput(()=>{ logger.Error("Test Error Message", "TestModule"); });
+        output = Utils.GetOutput(() => { logger.Error("Test Error Message", "TestModule"); });
         Assert.That(output, Does.Contain("Error"));
         Assert.That(output, containModule);
         Assert.That(output, Does.Contain("Test Error Message"));
-        output = Utils.GetOutput(()=>{ logger.Fatal("Test Fatal Message", "TestModule"); });
+        output = Utils.GetOutput(() => { logger.Fatal("Test Fatal Message", "TestModule"); });
         Assert.That(output, Does.Contain("Fatal"));
         Assert.That(output, containModule);
         Assert.That(output, Does.Contain("Test Fatal Message"));
+    }
+
+    [Test]
+    public void TestAppConfig()
+    {
+        var cfgPath = Utils.CreateTempConfig();
+        var cfg = AppConfig.ReadFromFile(cfgPath);
+        Assert.NotNull(cfg);
+        Assert.That(cfg.Port, Is.EqualTo(8080));
+        Assert.That(cfg.Logging.ConsoleColor, Is.True);
+        Assert.That(cfg.RawYaml.otherField.field2, Is.EqualTo("value2"));
+    }
+
+    [Test]
+    public void TestStartOption()
+    {
+        var cfgPath = Utils.CreateTempConfig();
+        var cfg = AppConfig.ReadFromFile(cfgPath);
+        var option = StartOption
+            .CreateSimple(cfg)
+            .WithPing()
+            .WithReload(cfg?.Reload, null)
+            .WithWelcome("Hello");
+        Assert.That(option, Is.Not.Null);
     }
 }

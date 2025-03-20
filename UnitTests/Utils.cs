@@ -24,4 +24,29 @@ public static class Utils
 
         return result;
     }
+
+    public static string CreateTempConfig()
+    {
+        var testContent =
+            """
+            host: http://localhost
+            port: 8080
+            logging:
+              consoleEnabled: true
+              consoleColor: true
+              logFileFolder: ./logs
+            reload:
+              enabled: true
+              path: /reload_config
+              token: 123
+            otherField:
+              field1: value1
+              field2: value2
+            """;
+        var tempDir = Directory.CreateTempSubdirectory("EasyBackend_");
+        Console.WriteLine(tempDir);
+        var cfgPath = Path.Combine(tempDir.FullName, "appConf.yml");
+        File.WriteAllText(cfgPath, testContent);
+        return cfgPath;
+    }
 }
