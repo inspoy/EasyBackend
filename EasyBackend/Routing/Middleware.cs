@@ -50,7 +50,7 @@ public class AuthMiddleware() : IMiddleware
 
     public (string authType, string authValue) SplitAuthHeader(RequestWrapper req)
     {
-        var authHeader = req.RawReq.Headers.Get("Authorization");
+        var authHeader = req.GetHeader("Authorization");
         if (string.IsNullOrEmpty(authHeader))
         {
             return (null, null);

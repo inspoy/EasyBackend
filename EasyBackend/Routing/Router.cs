@@ -45,8 +45,8 @@ public class Router
     /// </remarks>
     public RequestHandler Match(RequestWrapper req)
     {
-        var method = req.RawReq.HttpMethod;
-        var path = req.RawReq.Url?.LocalPath;
+        var method = req.Method;
+        var path = req.Url.LocalPath;
         foreach (var item in _handlers)
         {
             if (item.Method == method && item.TestPath(path, out var pathParams))

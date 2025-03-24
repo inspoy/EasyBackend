@@ -1,4 +1,6 @@
-﻿namespace UnitTests;
+﻿using EasyBackend.Http;
+
+namespace UnitTests;
 
 public static class Utils
 {
@@ -48,5 +50,18 @@ public static class Utils
         var cfgPath = Path.Combine(tempDir.FullName, "appConf.yml");
         File.WriteAllText(cfgPath, testContent);
         return cfgPath;
+    }
+    
+    public static MockContext CreateMockContext(string method, string url, string body = null)
+    {
+        return new MockContext
+        {
+            Method = method,
+            RemoteAddress = "0.0.0.0",
+            Url = new Uri("http://0.0.0.0" + url),
+            Body = body,
+            RequestHeaders = new Dictionary<string, string>(),
+            ResponseHeaders = new Dictionary<string, string>()
+        };
     }
 }

@@ -8,7 +8,8 @@ public class TestHttp
     [Test]
     public void TestResponseWrapper()
     {
-        var resp = new ResponseWrapper(12345, null);
+        var ctx = Utils.CreateMockContext("GET", "/");
+        var resp = new ResponseWrapper(12345, ctx);
         resp.InitSimple(ResponseErrCode.NotImplement, "Only for testing");
         Assert.That(resp.BriefInfo, Is.EqualTo(
             """
@@ -22,8 +23,9 @@ public class TestHttp
         var throttle = new ThrottleMiddleware(2000, 5);
         for (var i = 0; i < 10; ++i)
         {
-            var req = new RequestWrapper(null);
-            var res = new ResponseWrapper(req.ReqId, null);
+            var ctx = Utils.CreateMockContext("GET", "/");
+            var req = new RequestWrapper(ctx);
+            var res = new ResponseWrapper(req.ReqId, ctx);
             var result = throttle.PreExecute(req, res);
             if (i < 5)
             {

@@ -4,13 +4,28 @@ using Newtonsoft.Json.Linq;
 
 namespace EasyBackend.Http;
 
-public class ResponseWrapper(ulong reqId, HttpListenerResponse rawRes)
+public class ResponseWrapper
 {
-    public ulong ReqId { get; } = reqId;
+    private readonly HttpListenerResponse _rawRes;
+    private readonly MockContext _mock;
+
+    public ulong ReqId { get; }
     public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.InternalServerError;
     public ResponseErrCode ErrCode { get; set; } = ResponseErrCode.Unknown;
     public JObject Result { get; } = new();
     public string BriefInfo => $"{ReqId}-[{(int)StatusCode} {StatusCode}]({ErrCode}){ToJson()}";
+
+    public ResponseWrapper(ulong reqId, HttpListenerResponse rawRes)
+    {
+        _rawRes = rawRes;
+        ReqId = reqId;
+    }
+
+    public ResponseWrapper(ulong reqId, MockContext mock)
+    {
+        _mock = mock;
+        ReqId = reqId;
+    }
 
     public void InitSimple(ResponseErrCode errCode, string result = null)
     {
@@ -57,6 +72,7 @@ public class ResponseWrapper(ulong reqId, HttpListenerResponse rawRes)
 
     public void SetHeader(string key, string value)
     {
-        rawRes.AddHeader(key, value);
+        _rawRes?.AddHeader(key, value);
+        if (_mock != null) _mock.ResponseHeaders[key] = value;
     }
 }
