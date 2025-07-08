@@ -34,6 +34,20 @@ public class Router
         return newOne;
     }
 
+    public void Register(string path, PathRouter pathRouter)
+    {
+        if (pathRouter.OnGet != null)
+            AddHandler("GET", path, pathRouter.OnGet);
+        if (pathRouter.OnPost != null)
+            AddHandler("POST", path, pathRouter.OnPost);
+        if (pathRouter.OnPut != null)
+            AddHandler("PUT", path, pathRouter.OnPut);
+        if (pathRouter.OnPatch != null)
+            AddHandler("PATCH", path, pathRouter.OnPatch);
+        if (pathRouter.OnDelete != null)
+            AddHandler("DELETE", path, pathRouter.OnDelete);
+    }
+
     /// <summary>
     /// 匹配请求对应的处理器
     /// </summary>
