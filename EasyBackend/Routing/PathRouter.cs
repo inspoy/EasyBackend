@@ -4,6 +4,7 @@ namespace EasyBackend.Routing;
 
 public abstract class PathRouter
 {
+    public abstract string Path { get; }
     public virtual RequestHandlerFunc OnGet { get; } = null;
     public virtual RequestHandlerFunc OnPost { get; } = null;
     public virtual RequestHandlerFunc OnPut { get; } = null;

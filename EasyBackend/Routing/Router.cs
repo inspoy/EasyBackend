@@ -34,8 +34,10 @@ public class Router
         return newOne;
     }
 
-    public void Register(string path, PathRouter pathRouter)
+    public void RegisterPathRouter(PathRouter pathRouter)
     {
+        var path = pathRouter?.Path;
+        if (string.IsNullOrEmpty(path)) return;
         if (pathRouter.OnGet != null)
             AddHandler("GET", path, pathRouter.OnGet);
         if (pathRouter.OnPost != null)
