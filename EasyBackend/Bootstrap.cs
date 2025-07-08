@@ -71,6 +71,7 @@ public class Bootstrap
     public void Shutdown()
     {
         Logger.Info("Shutting down...", "Bootstrap");
+        Logger.Cleanup();
         _httpServer.Stop();
         _httpServer = null;
     }

@@ -13,7 +13,7 @@ public enum LogLevel
 
 public class Logger
 {
-    private Dictionary<string, ILogHandler> _logHandlers = new();
+    private readonly Dictionary<string, ILogHandler> _logHandlers = new();
 
     internal void Init(AppConfigLogging config)
     {
@@ -36,9 +36,39 @@ public class Logger
         LogImpl(LogLevel.Info, "===== Logger initialized =====", "Logger");
     }
 
+    public void Cleanup()
+    {
+        lock (_logHandlers)
+        {
+            foreach (var handler in _logHandlers.Values)
+            {
+                try
+                {
+                    handler?.Teardown();
+                }
+                catch (Exception)
+                {
+                    // Ignore any exceptions during teardown
+                }
+            }
+            _logHandlers.Clear();
+        }
+    }
+
     public void AppendHandler(string name, ILogHandler handler)
     {
-        _logHandlers.Add(name, handler);
+        try
+        {
+            handler.Setup();
+            lock (_logHandlers)
+            {
+                _logHandlers.Add(name, handler);
+            }
+        }
+        catch (Exception)
+        {
+            // Setup失败，忽略该handler
+        }
     }
 
     public void Debug(string message, string module = null) => LogImpl(LogLevel.Debug, message, module);
@@ -66,6 +96,8 @@ public class Logger
 
 public interface ILogHandler
 {
+    void Setup();
+    void Teardown();
     void DoLog(LogLevel level, string message);
 }
 
@@ -73,6 +105,14 @@ internal class ConsoleLogHandler : ILogHandler
 {
     public bool EnableColor { get; set; }
     private const string Format = "{0:yyyy-MM-dd HH:mm:ss.fff} [{1}] {2}";
+
+    public void Setup()
+    {
+    }
+
+    public void Teardown()
+    {
+    }
 
     public void DoLog(LogLevel level, string message)
     {
@@ -111,6 +151,15 @@ internal class FileLogHandler(string logFolder) : ILogHandler
     private const string LogFileName = "log_{0:yyyyMMdd}.log";
     private const string ErrorFileName = "error_{0:yyyyMMdd}.log";
     private static readonly object Lock = new();
+
+    public void Setup()
+    {
+        Directory.CreateDirectory(logFolder);
+    }
+
+    public void Teardown()
+    {
+    }
 
     public void DoLog(LogLevel level, string message)
     {
