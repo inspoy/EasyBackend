@@ -8,6 +8,8 @@ namespace EasyBackend;
 
 public class Bootstrap
 {
+    public static Bootstrap Current { get; private set; }
+
     public static Bootstrap Create(string[] args)
     {
         var launchArgs = new LaunchArgs(args);
@@ -35,6 +37,7 @@ public class Bootstrap
             AppConfig = appConfig,
             _configPath = confPath
         };
+        Current = bootstrap;
         return bootstrap;
     }
 
