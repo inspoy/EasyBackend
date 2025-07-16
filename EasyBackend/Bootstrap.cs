@@ -41,6 +41,7 @@ public class Bootstrap
         return bootstrap;
     }
 
+    internal bool MockMode { get; set; } = false;
     internal LaunchArgs LaunchArgs { get; private set; }
     public Logger Logger { get; private set; }
     public AppConfig AppConfig { get; private set; }

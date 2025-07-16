@@ -1,6 +1,7 @@
 ﻿namespace EasyBackend.Http;
 
-public class MockContext
+// Only for test purposes
+internal class MockContext
 {
     public string Method { get; init; }
     public string RemoteAddress { get; init; }
