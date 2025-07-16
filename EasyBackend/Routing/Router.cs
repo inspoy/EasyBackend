@@ -27,7 +27,7 @@ public class Router
             return null;
         }
 
-        if (priority < 0) priority = pathPattern.Length;
+        if (priority < 0 && pathPattern != "*") priority = pathPattern.Length;
         var newOne = new RequestHandler(method, pathPattern, handler, priority);
         _handlers.Add(newOne);
 
@@ -67,7 +67,7 @@ public class Router
         {
             if (item.Method == method && item.TestPath(path, out var pathParams))
             {
-                item.SetPathParams(pathParams);
+                req.SetPathParams(pathParams);
                 return item;
             }
         }

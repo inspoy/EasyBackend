@@ -21,7 +21,7 @@ public class ResponseWrapper
         ReqId = reqId;
     }
 
-    public ResponseWrapper(ulong reqId, MockContext mock)
+    internal ResponseWrapper(ulong reqId, MockContext mock)
     {
         _mock = mock;
         ReqId = reqId;

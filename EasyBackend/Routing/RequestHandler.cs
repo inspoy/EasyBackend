@@ -16,9 +16,13 @@ public class RequestHandler(string method, string pathPattern, RequestHandlerFun
 
     public string Method { get; } = method;
     public string PathPattern { get; } = pathPattern;
-    public Dictionary<string, string> PathParams { get; private set; }
     public RequestHandlerFunc HandlerFunc { get; } = handlerFunc;
+
+    /// <summary>
+    /// 优先级越大的越先尝试执行
+    /// </summary>
     public int Priority { get; } = priority;
+
     public HandlerReConfigFunc ReConfigFunc { get; set; }
 
 
@@ -62,8 +66,16 @@ public class RequestHandler(string method, string pathPattern, RequestHandlerFun
         // 完全相等的情况
         if (PathPattern == path) return true;
 
+        // 完全通配符的情况
+        if (PathPattern == "*")
+        {
+            pathParams ??= new();
+            pathParams.Add("wildcard", path);
+            return true;
+        }
+
         var pattern = PathPattern.Split('/');
-        var pathParts = path.Split('/');
+        var pathParts = path.TrimEnd('/').Split('/');
 
         // 处理通配符情况
         if (PathPattern.EndsWith("/*"))
@@ -137,10 +149,5 @@ public class RequestHandler(string method, string pathPattern, RequestHandlerFun
         {
             wrapper.Middleware.PostExecute(req, res);
         }
-    }
-
-    public void SetPathParams(Dictionary<string, string> pathParams)
-    {
-        PathParams = pathParams;
     }
 }

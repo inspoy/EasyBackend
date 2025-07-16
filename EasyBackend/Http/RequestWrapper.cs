@@ -66,13 +66,14 @@ public partial class RequestWrapper
     private Dictionary<string, string> _queryDict;
     private readonly HttpListenerRequest _rawReq;
     private readonly MockContext _mock;
+    private Dictionary<string, string> _pathParams;
 
     public RequestWrapper(HttpListenerRequest rawReq)
     {
         _rawReq = rawReq;
     }
 
-    public RequestWrapper(MockContext mock)
+    internal RequestWrapper(MockContext mock)
     {
         _mock = mock;
     }
@@ -84,5 +85,17 @@ public partial class RequestWrapper
         if (_mock != null)
             return _mock.RequestHeaders.GetValueOrDefault(headerName);
         return null;
+    }
+
+    public string GetPathParam(string key)
+    {
+        if (_pathParams != null && _pathParams.TryGetValue(key, out var value))
+            return value;
+        return string.Empty;
+    }
+
+    internal void SetPathParams(Dictionary<string, string> pathParams)
+    {
+        _pathParams = pathParams;
     }
 }
