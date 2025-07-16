@@ -20,7 +20,7 @@ public class TestCommon
     [Test]
     public void TestLaunchArgs()
     {
-        var strArgs = "-c config.json -p 8080 -d";
+        var strArgs = "-c config.json --port 8080 -d";
         var args = strArgs.Split(' ');
         var launchArgs = new LaunchArgs(args);
         var argBook = new List<LaunchArgItem>
@@ -79,14 +79,32 @@ public class TestCommon
     }
 
     [Test]
+    public void TestBadAppConfig()
+    {
+        var cfg = AppConfig.ReadFromFile("bad_config.yml");
+        Assert.That(cfg, Is.Null);
+    }
+
+    private class CustomConfig
+    {
+        public string Field1;
+        public string Field2;
+    }
+
+    [Test]
     public void TestAppConfig()
     {
         var cfgPath = Utils.CreateTempConfig();
         var cfg = AppConfig.ReadFromFile(cfgPath);
-        Assert.NotNull(cfg);
+        Assert.That(cfg, Is.Not.Null);
         Assert.That(cfg.Port, Is.EqualTo(8080));
         Assert.That(cfg.Logging.ConsoleColor, Is.True);
         Assert.That(cfg.RawYaml.otherField.field2, Is.EqualTo("value2"));
+
+        var customCfg = AppConfig.ToObject<CustomConfig>(cfg.RawYaml.otherField);
+        Assert.That(customCfg, Is.Not.Null);
+        Assert.That(customCfg.Field1, Is.EqualTo("value1"));
+        Assert.That(customCfg.Field2, Is.EqualTo("value2"));
     }
 
     [Test]
@@ -98,7 +116,8 @@ public class TestCommon
             .CreateSimple(cfg)
             .WithPing()
             .WithReload(cfg?.Reload, null)
-            .WithWelcome("Hello");
+            .WithWelcome("Hello")
+            .AddShutdownAction(() => { });
         Assert.That(option, Is.Not.Null);
     }
 }

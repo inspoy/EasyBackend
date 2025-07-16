@@ -38,4 +38,16 @@ public class TestHttp
             }
         }
     }
+
+    [Test]
+    public static void TestPathParse()
+    {
+        var ctx = Utils.CreateMockContext("GET", "/hello?a=1&b=2");
+        var req = new RequestWrapper(ctx);
+        req.Query.TryGetValue("a", out var a);
+        req.Query.TryGetValue("b", out var b);
+        Assert.That(a, Is.EqualTo("1"));
+        Assert.That(b, Is.EqualTo("2"));
+        Assert.That(req.Query, Does.Not.ContainKey("c"));
+    }
 }

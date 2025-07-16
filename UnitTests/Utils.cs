@@ -31,7 +31,7 @@ public static class Utils
     {
         var testContent =
             """
-            host: http://localhost
+            host: http://+
             port: 8080
             logging:
               consoleEnabled: true
@@ -46,20 +46,20 @@ public static class Utils
               field2: value2
             """;
         var tempDir = Directory.CreateTempSubdirectory("EasyBackend_");
-        Console.WriteLine(tempDir);
+        Console.WriteLine("Created temp config file at: " + tempDir);
         var cfgPath = Path.Combine(tempDir.FullName, "appConf.yml");
         File.WriteAllText(cfgPath, testContent);
         return cfgPath;
     }
     
-    public static MockContext CreateMockContext(string method, string url, string body = null)
+    internal static MockContext CreateMockContext(string method, string url, string body = null)
     {
         return new MockContext
         {
             Method = method,
             RemoteAddress = "0.0.0.0",
             Url = new Uri("http://0.0.0.0" + url),
-            Body = body,
+            Body = body ?? string.Empty,
             RequestHeaders = new Dictionary<string, string>(),
             ResponseHeaders = new Dictionary<string, string>()
         };
