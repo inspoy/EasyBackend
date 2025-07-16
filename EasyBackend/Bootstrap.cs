@@ -56,10 +56,22 @@ public class Bootstrap
         Console.CancelKeyPress += (sender, eventArgs) =>
         {
             eventArgs.Cancel = true;
-            Logger.Info("Ctrl+C detected, shutting down...");
+            Logger.Info("Ctrl+C detected, shutting down...", "Bootstrap");
             running = false;
         };
         while (running) Thread.Sleep(1000);
+        try
+        {
+            foreach (var action in option.ShutdownActions)
+            {
+                action?.Invoke();
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.Error("Error during shutdown action: " + e.Message, "Bootstrap");
+        }
+
         Shutdown();
     }
 

@@ -8,6 +8,7 @@ public class StartOption
     public string Host { get; set; }
     public int Port { get; set; }
     public Router Router { get; set; }
+    public List<Action> ShutdownActions { get; private set; }
 
     public static StartOption CreateSimple(AppConfig config)
     {
@@ -64,6 +65,13 @@ public class StartOption
             return Task.CompletedTask;
         });
         handler.AddMiddleware(new AuthMiddleware(cfg.Token), (newCfg, m) => { m.AuthValue = newCfg.Reload.Token; });
+        return this;
+    }
+
+    public StartOption AddShutdownAction(Action shutdownAction)
+    {
+        ShutdownActions ??= new List<Action>();
+        ShutdownActions.Add(shutdownAction);
         return this;
     }
 }
