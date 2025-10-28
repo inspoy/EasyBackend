@@ -147,7 +147,15 @@ public class RequestHandler(string method, string pathPattern, RequestHandlerFun
             }
         }
 
-        await HandlerFunc(req, res);
+        try
+        {
+            await HandlerFunc(req, res);
+        }
+        catch (Exception ex)
+        {
+            _instance.Logger.Error($"Error executing request handler for {Method} {PathPattern}: {ex}");
+            res.InitSimple(ResponseErrCode.ServerError, "Internal server error.");
+        }
 
         foreach (var wrapper in _middlewares)
         {
