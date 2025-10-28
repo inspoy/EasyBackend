@@ -140,7 +140,11 @@ public class RequestHandler(string method, string pathPattern, RequestHandlerFun
         foreach (var wrapper in _middlewares)
         {
             var result = wrapper.Middleware.PreExecute(req, res);
-            if (!result) return;
+            if (!result)
+            {
+                res.InitSimple(ResponseErrCode.InvalidRequest, "Request blocked by middleware.");
+                return;
+            }
         }
 
         await HandlerFunc(req, res);
